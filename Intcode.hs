@@ -27,6 +27,10 @@ handleProgramStreams program is os t
     | inst == 2 = handleProgramStreams (opcodeMult program o1 o2 t) is os (t+4)
     | inst == 3 = let res = opcodeInput program is t in handleProgramStreams (fst res) (snd res) os (t+2)
     | inst == 4 = handleProgramStreams program is (opcodeOutput program os o1 t) (t+2)
+    | inst == 5 = handleProgramStreams program is os (opcodeJumpIfTrue program o1 o2 t)
+    | inst == 6 = handleProgramStreams program is os (opcodeJumpIfFalse program o1 o2 t)
+    | inst == 7 = handleProgramStreams (opcodeLessThan program o1 o2 t) is os (t+4)
+    | inst == 8 = handleProgramStreams (opcodeEquals program o1 o2 t) is os (t+4)
     | otherwise = error ("Invalid opcode at position " ++ (show t) ++ ": " ++ (show inst))
     where op = readProgram program t 1
           inst = mod op 100
@@ -45,7 +49,19 @@ opcodeInput program is t = let str = readStream is in (writeProgram program (rea
                                
 opcodeOutput :: Program -> OStream -> Mode -> Int -> OStream
 opcodeOutput program os o1 t = writeStream os (readProgram program(t+1) o1)
-    
+
+opcodeJumpIfTrue :: Program -> Mode -> Mode -> Int -> Int
+opcodeJumpIfTrue program o1 o2 t = if readProgram program (t+1) o1 == 0 then (t+3) else readProgram program (t+2) o2
+
+opcodeJumpIfFalse :: Program -> Mode -> Mode -> Int -> Int
+opcodeJumpIfFalse program o1 o2 t = if readProgram program (t+1) o1 /= 0 then (t+3) else readProgram program (t+2) o2
+
+opcodeLessThan :: Program -> Mode -> Mode -> Int -> Program
+opcodeLessThan program o1 o2 t = let f = writeProgram program (readProgram program (t+3) 1) in if (readProgram program (t+1) o1) < (readProgram program (t+2) o2) then f 1 else f 0
+
+opcodeEquals :: Program -> Mode -> Mode -> Int -> Program
+opcodeEquals program o1 o2 t = let f = writeProgram program (readProgram program (t+3) 1) in if (readProgram program (t+1) o1) == (readProgram program (t+2) o2) then f 1 else f 0
+
 readStream :: IStream -> (Data,IStream)
 readStream [] = error "attempted to read from empty input stream"
 readStream (i:is) = (i,is)
