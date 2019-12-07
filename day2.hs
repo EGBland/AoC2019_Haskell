@@ -2,13 +2,18 @@ import Data.List
 import Data.Ord
 import Text.Regex
 
+type Opcode = Int
+type Position = Int
+type Instruction = (Opcode,Position)
+type Program = [Instruction]
+
 main = do
     day2_1
     day2_2
 
 day2_1 = do
     input <- readFile "day2.txt"
-    let ins = [read a :: Int | a <- splitAtCommas input]
+    let ins = [read a :: Opcode | a <- splitAtCommas input]
     let program = zip (take 1 ins ++ [12,2] ++ drop 3 ins) [0..length ins-1]
     putStrLn ("Problem 1: " ++ (show $ fst $ head $ sortProgram $ handleProgram program 0))
 
@@ -22,7 +27,7 @@ day2_2 = do
 splitAtCommas :: String -> [String]
 splitAtCommas a = splitRegex (mkRegex "\\,") a
 
-handleProgram :: [(Int,Int)] -> Int -> [(Int,Int)]
+handleProgram :: Program -> Int -> Program
 handleProgram program t
     | inst == 99 = program
     | inst == 1 = handleProgram (opcodeAdd program t) (t+4)
@@ -30,19 +35,19 @@ handleProgram program t
     | otherwise = error ("Invalid opcode at position " ++ (show t) ++ ": " ++ (show inst))
     where inst = readProgram program t
 
-opcodeAdd :: [(Int,Int)] -> Int -> [(Int,Int)]
+opcodeAdd :: Program -> Int -> Program
 opcodeAdd program t = writeProgram program (readProgram program (t+3)) ((readProgram program (readProgram program (t+1))) + (readProgram program (readProgram program (t+2))))
 
-opcodeMult :: [(Int,Int)] -> Int -> [(Int,Int)]
+opcodeMult :: Program -> Int -> Program
 opcodeMult program t = writeProgram program (readProgram program (t+3)) ((readProgram program (readProgram program (t+1))) * (readProgram program (readProgram program (t+2))))
     
-readProgram :: [(Int,Int)] -> Int -> Int
+readProgram :: Program -> Position -> Opcode
 readProgram program pos
     | null matches = -9999999
     | otherwise = fst $ head matches
     where matches = filter (\(_,p) -> (pos == p)) program
 
-writeProgram :: [(Int,Int)] -> Int -> Int -> [(Int,Int)]
+writeProgram :: Program -> Position -> Opcode -> Program
 writeProgram program pos val = (val,pos) : (remFromList ((readProgram program pos,pos)) program)
     
 remFromList :: (Eq a) => a -> [a] -> [a]
@@ -51,5 +56,5 @@ remFromList x (y:ys)
     | x == y = remFromList x ys
     | otherwise = y : remFromList x ys
     
-sortProgram :: [(Int,Int)] -> [(Int,Int)]
+sortProgram :: Program -> Program
 sortProgram program = sortBy (comparing $ snd) program
