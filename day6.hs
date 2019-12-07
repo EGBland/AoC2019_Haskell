@@ -5,11 +5,25 @@ type Orbit = (String,String)
 type Object = (String,[String])
 
 main = do
+    day6_1
+    day6_2
+
+day6_1 = do
     input <- readFile "day6.txt"
     let orbits = [(head $ splitAtOp a ")", last $ splitAtOp a ")") | a <- lines input]
     let universe = getUniverse orbits
     let dirOrbits = [(o, getDirOrbs o orbits) | o <- universe]
     putStrLn $ show $ sum [countIndirOrbs a dirOrbits | a <- dirOrbits]
+
+day6_2 = do
+    input <- readFile "day6.txt"
+    let orbits = [(head $ splitAtOp a ")", last $ splitAtOp a ")") | a <- lines input]
+    let universe = getUniverse orbits
+    let dirOrbits = [(o, getDirOrbs o orbits) | o <- universe]
+    let you = reverse $ pathToCom "YOU" dirOrbits
+    let san = reverse $ pathToCom "SAN" dirOrbits
+    let cmn = commonPath you san
+    putStrLn $ show $ ((length you) + (length san) - 2*(length cmn))
 
 splitAtOp :: String -> String -> [String]
 splitAtOp a op = splitRegex (mkRegex ("\\"++op)) a
@@ -38,3 +52,12 @@ countDirOrbs (_,orbs) = length orbs
 countIndirOrbs :: Object -> [Object] -> Int
 countIndirOrbs _ [] = 0
 countIndirOrbs (a,orbs) orbits = countDirOrbs (a,orbs) + sum [countIndirOrbs b orbits | b <- map (\x -> (head $ filter (\(y,_) -> y == x) orbits)) orbs]
+
+pathToCom :: String -> [Object] -> [String]
+pathToCom a orbits
+    | a == "COM" = []
+    | otherwise = b : pathToCom b orbits
+    where b = fst $ head $ filter (\(_,orbs2) -> elem a orbs2) orbits
+
+commonPath :: [String] -> [String] -> [String]
+commonPath a b = [c | c <- a, elem c b]
