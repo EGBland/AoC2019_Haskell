@@ -6,14 +6,14 @@ main = do
     day1_2
 
 day1_1 = do
-    contents <- readFile "day1.txt"
+    contents <- readFile "input/day1.txt"
     let fuel = sum [getFuel (read a :: Int) | a <- words contents]
-    putStrLn $ concat ["Problem 1: ", show fuel]
+    putStrLn $ ("Day 01, Problem 1: " ++ (show fuel))
 
 day1_2 = do
-    contents <- readFile "day1.txt"
+    contents <- readFile "input/day1.txt"
     let fuel = sum [getFuelRecursive (read a :: Int) | a <- words contents]
-    putStrLn $ concat ["Problem 2: ", show fuel]
+    putStrLn $ ("Day 01, Problem 2: " ++ (show fuel))
 
 getFuel :: Int -> Int
 getFuel k = max 0 (div k 3 - 2)

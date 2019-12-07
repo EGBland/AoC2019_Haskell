@@ -12,17 +12,17 @@ main = do
     day2_2
 
 day2_1 = do
-    input <- readFile "day2.txt"
+    input <- readFile "input/day2.txt"
     let ins = [read a :: Opcode | a <- splitAtCommas input]
     let program = zip (take 1 ins ++ [12,2] ++ drop 3 ins) [0..length ins-1]
-    putStrLn ("Problem 1: " ++ (show $ fst $ head $ sortProgram $ handleProgram program 0))
+    putStrLn ("Day 02, Problem 1: " ++ (show $ fst $ head $ sortProgram $ handleProgram program 0))
 
 day2_2 = do
-    input <- readFile "day2.txt"
+    input <- readFile "input/day2.txt"
     let ins = [read a :: Opcode | a <- splitAtCommas input]
     let programs = [(zip (take 1 ins ++ [noun,verb] ++ drop 3 ins) [0..length ins-1],(noun,verb)) | noun<-[0..99], verb<-[0..99]]
     let resolvedPrograms = [(handleProgram program 0,nv) | (program,nv) <- programs]
-    putStrLn ("Problem 2: " ++ (show $ let (_,nv) = head $ filter (\(prog,_) -> (readProgram prog 0 == 19690720)) resolvedPrograms in (100*fst nv) + snd nv))
+    putStrLn ("Day 02, Problem 2: " ++ (show $ let (_,nv) = head $ filter (\(prog,_) -> (readProgram prog 0 == 19690720)) resolvedPrograms in (100*fst nv) + snd nv))
 
 splitAtCommas :: String -> [String]
 splitAtCommas a = splitRegex (mkRegex "\\,") a

@@ -7,15 +7,15 @@ data Orientation = Horizontal | Vertical deriving (Eq)
 
 main = do
     day3_1
-    day3_2
+    --day3_2
 
 day3_1 = do
-    input <- readFile "day3.txt"
-    putStrLn $ show $ minimum $ map manhattan (getIntersects (sortLines $ processInstructions $ head $ lines input) (sortLines $ processInstructions $ last $ lines input))
+    input <- readFile "input/day3.txt"
+    putStrLn ("Day 03, Problem 1: " ++ (show $ minimum $ map manhattan (getIntersects (sortLines $ processInstructions $ head $ lines input) (sortLines $ processInstructions $ last $ lines input))))
 
 day3_2 = do
-    input <- readFile "day3.txt"
-    putStrLn $ show $ stepsToPoint (sortLines $ processInstructions "R8,U5,L5,D3") (3,3)
+    input <- readFile "input/day3.txt"
+    putStrLn ("Day 03, Problem 2: " ++ (show $ stepsToPoint (sortLines $ processInstructions "R8,U5,L5,D3") (3,3)))
     
 
 manhattan :: Point -> Int

@@ -13,7 +13,7 @@ day6_1 = do
     let orbits = [(head $ splitAtOp a ")", last $ splitAtOp a ")") | a <- lines input]
     let universe = getUniverse orbits
     let dirOrbits = [(o, getDirOrbs o orbits) | o <- universe]
-    putStrLn $ show $ sum [countIndirOrbs a dirOrbits | a <- dirOrbits]
+    putStrLn ("Day 06, Problem 1: " ++ (show $ sum [countIndirOrbs a dirOrbits | a <- dirOrbits]))
 
 day6_2 = do
     input <- readFile "day6.txt"
@@ -23,7 +23,7 @@ day6_2 = do
     let you = reverse $ pathToCom "YOU" dirOrbits
     let san = reverse $ pathToCom "SAN" dirOrbits
     let cmn = commonPath you san
-    putStrLn $ show $ ((length you) + (length san) - 2*(length cmn))
+    putStrLn ("Day 06, Problem 2: " ++ (show $ ((length you) + (length san) - 2*(length cmn))))
 
 splitAtOp :: String -> String -> [String]
 splitAtOp a op = splitRegex (mkRegex ("\\"++op)) a
