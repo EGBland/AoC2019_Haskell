@@ -6,7 +6,7 @@ main = do
     day8_2
 
 day8_1 = do
-    input <- readFile "day8.txt"
+    input <- readFile "input/day8.txt"
     let width = 25
     let height = 6
     let layerSize = width * height
