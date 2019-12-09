@@ -1,4 +1,8 @@
-module Intcode (readProgramFromStr, handleProgram, handleProgramStreams, readProgram, writeProgram) where
+module Intcode (
+-- fns
+readProgramFromStr, runProgram, readProgram, writeProgram,
+-- types
+Mode, Data, Opcode, Instruction, Program, RelBase, Caret, IStream, OStream) where
 
 import Data.List
 import Data.Ord
@@ -19,21 +23,18 @@ type OStream = [Data]
 readProgramFromStr :: String -> Program
 readProgramFromStr s = zip [read a :: Opcode | a <- splitAtCommas s] [0..]
 
-handleProgram :: Program -> Caret -> Program
-handleProgram program t = fst $ handleProgramStreams program [] [] t 0
-
-handleProgramStreams :: Program -> IStream -> OStream -> Caret -> RelBase -> (Program,OStream)
-handleProgramStreams program is os t base
+runProgram :: Program -> IStream -> OStream -> Caret -> RelBase -> (Program,OStream)
+runProgram program is os t base
     | inst == 99 = (sortProgram program,os)
-    | inst == 1 = handleProgramStreams (opcodeAdd program o1 o2 o3 t base) is os (t+4) base
-    | inst == 2 = handleProgramStreams (opcodeMult program o1 o2 o3 t base) is os (t+4) base
-    | inst == 3 = let res = opcodeInput program is o1 t base in handleProgramStreams (fst res) (snd res) os (t+2) base 
-    | inst == 4 = handleProgramStreams program is (opcodeOutput program os o1 t base) (t+2) base
-    | inst == 5 = handleProgramStreams program is os (opcodeJumpIfTrue program o1 o2 t base) base
-    | inst == 6 = handleProgramStreams program is os (opcodeJumpIfFalse program o1 o2 t base) base
-    | inst == 7 = handleProgramStreams (opcodeLessThan program o1 o2 o3 t base) is os (t+4) base
-    | inst == 8 = handleProgramStreams (opcodeEquals program o1 o2 o3 t base) is os (t+4) base
-    | inst == 9 = handleProgramStreams program is os (t+2) (opcodeIncRelBase program o1 t base)
+    | inst == 1 = runProgram (opcodeAdd program o1 o2 o3 t base) is os (t+4) base
+    | inst == 2 = runProgram (opcodeMult program o1 o2 o3 t base) is os (t+4) base
+    | inst == 3 = let res = opcodeInput program is o1 t base in runProgram (fst res) (snd res) os (t+2) base 
+    | inst == 4 = runProgram program is (opcodeOutput program os o1 t base) (t+2) base
+    | inst == 5 = runProgram program is os (opcodeJumpIfTrue program o1 o2 t base) base
+    | inst == 6 = runProgram program is os (opcodeJumpIfFalse program o1 o2 t base) base
+    | inst == 7 = runProgram (opcodeLessThan program o1 o2 o3 t base) is os (t+4) base
+    | inst == 8 = runProgram (opcodeEquals program o1 o2 o3 t base) is os (t+4) base
+    | inst == 9 = runProgram program is os (t+2) (opcodeIncRelBase program o1 t base)
     | otherwise = error ("Invalid opcode at position " ++ (show t) ++ ": " ++ (show inst))
     where op = readProgram program t 1 base
           inst = mod op 100
